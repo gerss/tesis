@@ -305,7 +305,12 @@ void Scheme:: maincalcscheme(TAB & he, TAB & ve1, TAB & ve2, TAB & qe1, TAB & qe
   }
   
 //I FOUND IT !!
+cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
 
+
+cudaEventRecord(start);
   for (int i=1 ; i<NXCELL+1 ; i++){
     for (int j=1 ; j<NYCELL+1 ; j++){
       // Solution of the equation of mass conservation (First equation of Shallow-Water)
@@ -313,8 +318,14 @@ void Scheme:: maincalcscheme(TAB & he, TAB & ve1, TAB & ve2, TAB & qe1, TAB & qe
       
     } //end for j
   } //end for i
-  
-  
+cudaEventRecord(stop);
+
+cudaEventSynchronize(stop);
+float milliseconds = 0;
+cudaEventElapsedTime(&milliseconds, start, stop);
+
+printf("The elapsed time in gpu was %.2f ms\ ", elapsed);
+
   //Infiltration
   I->calcul(hes,Vin,dt);
   hes = I->get_hmod();
